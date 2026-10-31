@@ -1,0 +1,64 @@
+# ─────────────────────────────────────────────────────────────
+#  Podcast → Reels pipeline configuration
+#  Every value here can be overridden per job by putting a
+#  config.yaml inside the job folder (only the keys you change).
+# ─────────────────────────────────────────────────────────────
+
+download:
+  max_height: 1080          # 1080 or 2160. 4K gives sharper 9:16 crops but is slower.
+  format: "bv*[height<={h}][ext=mp4]+ba[ext=m4a]/bv*[height<={h}]+ba/b[height<={h}]/b"
+  cookies_from_browser: ""  # e.g. "chrome" if YouTube asks you to sign in
+
+transcribe:
+  backend: auto             # auto | mlx | faster-whisper
+  model: auto               # auto | tiny | base | small | medium | large-v3 | large-v3-turbo
+  language: ""              # "" = auto-detect, or "en", "ur", "hi", ...
+  chunk_minutes: 12         # transcript is split into files this long for Claude to read
+
+clips:
+  min_seconds: 20
+  max_seconds: 75
+  target_count: 8           # default number of reels Claude should find
+  pad_start: 0.15           # seconds added before first word
+  pad_end: 0.35             # seconds added after last word
+
+reframe:
+  mode: face                # face | blur | center
+  width: 1080
+  height: 1920
+  sample_fps: 6             # face detection rate (higher = more accurate, slower)
+  smoothing: 0.12           # 0..1  camera follow speed (lower = smoother)
+  deadzone: 0.06            # fraction of frame width the face may move before camera follows
+  scene_cut_threshold: 0.45 # histogram distance that counts as a camera cut (snap instantly)
+  no_face_fallback: blur    # what to do when no face is found in a clip: blur | center
+
+encode:
+  crf: 18
+  preset: medium            # ultrafast … veryslow
+  audio_bitrate: 192k
+  loudnorm: true            # normalise to -14 LUFS (Instagram/TikTok/Shorts loudness)
+
+captions:
+  preset: hormozi           # hormozi | karaoke | boxed | minimal
+  max_words: 3              # words on screen at once (hormozi/boxed)
+  max_chars: 18
+  uppercase: true
+  position: 0.70            # vertical position, 0 = top, 1 = bottom
+  highlight_color: "#FFE600"
+  secondary_color: "#00E5FF"
+  font: Montserrat          # Montserrat | Anton | BebasNeue | Inter | Poppins
+
+render:
+  engine: remotion          # remotion | ffmpeg   (ffmpeg = captions only, no motion graphics)
+  fps: 30
+  concurrency: 0            # 0 = Remotion default (half your CPU threads)
+  hook_title: true          # big hook text during the first ~2.5 s
+  progress_bar: true
+  auto_zoom: true           # slow push-in + punch zooms on emphasis moments
+  grain: true
+  vignette: true
+  end_card: ""              # e.g. "Follow for more 🎙️" (empty = off)
+  brand_handle: ""          # e.g. "@yourpodcast", shown small at top
+  music:
+    enabled: false          # drops a random track from assets/music under the voice
+    volume: 0.08

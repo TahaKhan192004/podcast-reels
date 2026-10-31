@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reel Studio</title>
+<style>
+  :root{
+    --bg:#0b0b10; --panel:#14141c; --panel2:#1b1b26; --line:#272736; --text:#f2f2f7; --mute:#8b8ba3;
+    --accent:#ffd23f; --accent2:#ff4d8d; --ok:#3ddc97; --err:#ff5d6c;
+    --r:16px; font-family:Inter,"Segoe UI",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 500px at 20% -10%,#241a3a 0,transparent 60%),var(--bg);color:var(--text);min-height:100vh}
+  header{display:flex;align-items:center;gap:12px;padding:20px 28px;border-bottom:1px solid var(--line)}
+  .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-size:18px}
+  header h1{font-size:18px;margin:0;letter-spacing:.3px}
+  header small{color:var(--mute);margin-left:auto}
+  main{display:grid;grid-template-columns:380px 1fr;gap:24px;padding:24px 28px;max-width:1500px;margin:auto}
+  @media(max-width:980px){main{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:1.4px;color:var(--mute);margin:0 0 14px;font-weight:700}
+  label{display:block;font-size:12px;color:var(--mute);margin:14px 0 6px;font-weight:600}
+  input,select,textarea{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:12px;color:var(--text);padding:12px 14px;font:inherit;outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+  textarea{resize:vertical;min-height:62px}
+  .row{display:flex;gap:12px}.row>*{flex:1}
+  .stepper{display:flex;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .stepper button{background:none;border:0;color:var(--text);font-size:20px;width:46px;height:44px;cursor:pointer}
+  .stepper button:hover{background:#262636}
+  .stepper input{border:0;text-align:center;background:none;font-weight:700;font-size:16px;padding:0}
+  .toggle{display:flex;align-items:center;gap:10px;margin-top:16px;font-size:13px;cursor:pointer;color:var(--text)}
+  .toggle input{width:auto;accent-color:var(--accent)}
+  .go{margin-top:18px;width:100%;border:0;border-radius:12px;padding:14px;font:inherit;font-weight:800;font-size:15px;cursor:pointer;color:#111;
+      background:linear-gradient(135deg,var(--accent),#ffb23f)}
+  .go:disabled{opacity:.5;cursor:wait}
+  .hint{font-size:12px;color:var(--mute);margin-top:12px;line-height:1.5}
+  .err{color:var(--err);font-size:13px;margin-top:10px}
+  .job{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;color:inherit;font:inherit;cursor:pointer}
+  .job:hover,.job.sel{border-color:var(--accent)}
+  .job b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .job span{font-size:12px;color:var(--mute)}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;margin-right:6px}
+  .pill.running,.pill.queued{background:#3a3210;color:var(--accent)}.pill.done{background:#12382a;color:var(--ok)}
+  .pill.error{background:#40181d;color:var(--err)}.pill.cancelled{background:#2a2a36;color:var(--mute)}
+  .steps{display:flex;gap:8px;margin:6px 0 18px;flex-wrap:wrap}
+  .stp{flex:1;min-width:110px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);font-size:12.5px;color:var(--mute)}
+  .stp i{font-style:normal;display:block;font-size:11px;margin-bottom:2px}
+  .stp.cur{border-color:var(--accent);color:var(--text)}.stp.done{color:var(--ok);border-color:#1d4a39}
+  .stp.cur i::after{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-left:6px;animation:p 1s infinite}
+  @keyframes p{50%{opacity:.2}}
+  .bar{height:8px;border-radius:99px;background:var(--panel2);overflow:hidden}
+  .bar>div{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .6s}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;font-size:12.5px}
+  .chip{background:var(--panel2);border:1px solid var(--line);border-radius:99px;padding:5px 12px;color:var(--mute)}
+  .chip b{color:var(--text)}
+  .chip.tok b{color:var(--ok)}
+  details{margin-top:12px}summary{cursor:pointer;color:var(--mute);font-size:12.5px}
+  pre{background:#0a0a0f;border:1px solid var(--line);border-radius:12px;padding:12px;max-height:260px;overflow:auto;font-size:12px;line-height:1.55;color:#b6b6c9;white-space:pre-wrap}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-top:18px}
+  .reel{background:var(--panel2);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column}
+  .reel .vid{aspect-ratio:9/16;background:#000 center/cover;display:grid;place-items:center;color:var(--mute);font-size:13px}
+  .reel video{width:100%;height:100%;object-fit:cover;display:block}
+  .reel .body{padding:14px}
+  .reel h3{margin:0 0 6px;font-size:14px;line-height:1.3}
+  .reel .sc{float:right;background:var(--accent);color:#111;font-weight:800;border-radius:8px;padding:2px 8px;font-size:12px;margin-left:8px}
+  .reel p{margin:6px 0;font-size:12px;color:var(--mute);line-height:1.45}
+  .tags{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}
+  .tags span{font-size:10.5px;background:#262636;border-radius:6px;padding:2px 7px;color:#c9c9dd}
+  .acts{display:flex;gap:8px;margin-top:10px}
+  .acts a,.acts button{flex:1;text-align:center;text-decoration:none;font:inherit;font-size:12px;font-weight:700;color:var(--text);background:#262636;border:0;border-radius:9px;padding:9px;cursor:pointer}
+  .acts a:hover,.acts button:hover{background:#31314a}
+  .empty{color:var(--mute);text-align:center;padding:60px 20px;line-height:1.7}
+  .cancel{float:right;background:none;border:1px solid var(--line);color:var(--mute);border-radius:9px;padding:6px 12px;cursor:pointer;font:inherit;font-size:12px}
+  .cancel:hover{border-color:var(--err);color:var(--err)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🎬</div><h1>Reel Studio</h1>
+  <small id="claudeStatus"></small>
+</header>
+<main>
+  <aside>
+    <form class="card" id="form">
+      <h2>New project</h2>
+      <label for="url">YouTube link</label>
+      <input id="url" type="url" required placeholder="https://youtu.be/…" autocomplete="off">
+      <div class="row">
+        <div>
+          <label>Number of reels</label>
+          <div class="stepper"><button type="button" id="minus">−</button><input id="count" type="number" min="1" max="20" value="5"><button type="button" id="plus">+</button></div>
+        </div>
+        <div>
+          <label for="model">Claude model</label>
+          <select id="model">
+            <option value="sonnet">Sonnet (balanced)</option>
+            <option value="haiku">Haiku (cheapest)</option>
+            <option value="opus">Opus (best picks)</option>
+          </select>
+        </div>
+      </div>
+      <label for="instr">Extra instructions <span style="font-weight:400">(optional)</span></label>
+      <textarea id="instr" maxlength="500" placeholder="e.g. focus on money advice, funny moments only…"></textarea>
+      <label class="toggle"><input type="checkbox" id="motion" checked> Motion graphics &amp; effects (slower render)</label>
+      <button class="go" id="go" type="submit">Make reels →</button>
+      <div class="err" id="err"></div>
+      <div class="hint">Download &amp; transcription run locally with no Claude tokens. Claude is called <b>once</b> to choose the clips and plan the effects; rendering is local again.</div>
+    </form>
+    <div class="card" style="margin-top:20px">
+      <h2>Projects</h2>
+      <div id="list"><div class="hint">Nothing yet.</div></div>
+    </div>
+  </aside>
+
+  <section class="card" id="detail">
+    <div class="empty">Paste a YouTube link on the left to start.<br>Finished reels will appear here as they render.</div>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const STEPS = [['download','Download'],['transcribe','Transcribe'],['pick','Claude picks clips'],['validate','Check'],['render','Render']];
+let selected = null, jobs = [];
+
+$('minus').onclick = () => $('count').value = Math.max(1, +$('count').value - 1);
+$('plus').onclick = () => $('count').value = Math.min(20, +$('count').value + 1);
+
+$('form').onsubmit = async (e) => {
+  e.preventDefault(); $('err').textContent = ''; $('go').disabled = true;
+  try {
+    const r = await fetch('/api/jobs', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
+      url: $('url').value.trim(), count: +$('count').value, model: $('model').value,
+      instructions: $('instr').value, motion: $('motion').checked})});
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'failed');
+    selected = d.id; lastKey = ''; $('url').value = ''; await refresh();
+  } catch (x) { $('err').textContent = x.message; }
+  $('go').disabled = false;
+};
+
+const ago = (t) => { if (!t) return ''; const s = Date.now()/1000 - t; return s < 90 ? 'just now' : s < 5400 ? Math.round(s/60)+' min ago' : s < 129600 ? Math.round(s/3600)+' h ago' : Math.round(s/86400)+' d ago'; };
+
+function renderList() {
+  $('list').innerHTML = jobs.length ? jobs.map((j) => `
+    <button class="job ${j.id === selected ? 'sel' : ''}" data-id="${esc(j.id)}">
+      <b>${esc(j.title || j.url)}</b>
+      <span><span class="pill ${esc(j.status)}">${esc(j.status)}</span>${j.rendered ?? 0} reel(s) · ${ago(j.created)}</span>
+    </button>`).join('') : '<div class="hint">Nothing yet.</div>';
+  document.querySelectorAll('.job').forEach((b) => b.onclick = () => { selected = b.dataset.id; lastKey = ''; refresh(); });
+}
+
+function reelCard(c) {
+  const tags = (c.hashtags || []).map((h) => `<span>${esc(h)}</span>`).join('');
+  const cap = [c.post_caption, (c.hashtags || []).join(' ')].filter(Boolean).join('\n\n');
+  return `<div class="reel">
+    <div class="vid" style="${c.cover ? `background-image:url(${esc(c.cover)})` : ''}">
+      ${c.video ? `<video src="${esc(c.video)}" poster="${esc(c.cover || '')}" controls preload="metadata" playsinline></video>` : '<span>rendering…</span>'}
+    </div>
+    <div class="body">
+      <h3>${c.score ? `<span class="sc">${esc(c.score)}</span>` : ''}${esc(c.hook || c.title)}</h3>
+      <p>${esc(c.reason)}</p>
+      <div class="tags"><span>${esc(c.preset)}</span>${(c.effects||[]).map((e)=>`<span>✦ ${esc(e)}</span>`).join('')}<span>${Math.round(c.duration||0)}s</span></div>
+      <p>${esc(c.post_caption)}</p><div class="tags">${tags}</div>
+      <div class="acts">
+        ${c.video ? `<a href="${esc(c.video)}" download>Download</a>` : ''}
+        <button data-copy="${esc(cap)}">Copy caption</button>
+      </div>
+    </div></div>`;
+}
+
+let lastLog = '';
+function renderDetail(d) {
+  const idx = STEPS.findIndex((s) => s[0] === d.step);
+  const live = d.status === 'running' || d.status === 'queued';
+  const steps = STEPS.map(([k, label], i) => {
+    const cls = d.status === 'done' || i < idx ? 'done' : (i === idx && live ? 'cur' : '');
+    return `<div class="stp ${cls}"><i>${cls === 'done' ? '✓ done' : cls === 'cur' ? 'working' : 'waiting'}</i>${label}</div>`;
+  }).join('');
+  const pct = Math.round((d.status === 'done' ? 1 : d.progress || 0) * 100);
+  const t = d.tokens;
+  const tok = t && t.calls ? `<span class="chip tok">Claude: <b>${(t.input+t.output).toLocaleString()}</b> tokens (${t.calls} call${t.calls>1?'s':''})${t.cost ? ` · ≈$${t.cost.toFixed(3)}`:''}</span>`
+    : (d.id.startsWith('job:') ? '' : '<span class="chip tok">Claude tokens so far: <b>0</b></span>');
+  const clips = (d.clips || []).map(reelCard).join('');
+  $('detail').innerHTML = `
+    ${live ? '<button class="cancel" id="cancel">Cancel</button>' : ''}
+    <h2>${esc(d.title || d.url)}</h2>
+    ${d.id.startsWith('job:') ? '' : `<div class="steps">${steps}</div>
+    <div class="bar"><div style="width:${pct}%"></div></div>`}
+    <div class="meta">
+      <span class="chip"><span class="pill ${esc(d.status)}">${esc(d.status)}</span></span>
+      ${d.count ? `<span class="chip">Target <b>${esc(d.count)}</b> reels</span>` : ''}
+      ${d.model ? `<span class="chip">Model <b>${esc(d.model)}</b></span>` : ''}
+      ${live ? `<span class="chip">Step progress <b>${pct}%</b></span>` : ''}
+      ${tok}
+    </div>
+    ${d.error ? `<div class="err">${esc(d.error)}</div>` : ''}
+    <div class="grid">${clips}</div>
+    ${d.log && d.log.length ? `<details ${live ? 'open' : ''}><summary>Log</summary><pre id="log">${esc(d.log.join('\n'))}</pre></details>` : ''}`;
+  const lg = $('log'); if (lg) lg.scrollTop = lg.scrollHeight;
+  document.querySelectorAll('[data-copy]').forEach((b) => b.onclick = () => { navigator.clipboard.writeText(b.dataset.copy); b.textContent = 'Copied ✓'; setTimeout(() => b.textContent = 'Copy caption', 1500); });
+  if ($('cancel')) $('cancel').onclick = () => fetch(`/api/jobs/${d.id}/cancel`, {method:'POST', body:'{}'});
+}
+
+let lastKey = '';
+async function refresh() {
+  try {
+    const r = await (await fetch('/api/jobs')).json();
+    jobs = r.jobs;
+    $('claudeStatus').textContent = r.claude ? '' : '⚠ Claude Code CLI not found — install it and log in';
+    if (!selected && jobs.length) selected = jobs[0].id;
+    renderList();
+    if (selected) {
+      const d = await (await fetch('/api/jobs/' + encodeURIComponent(selected))).json();
+      if (!d.error) {
+        // don't rebuild the page while a video is playing (it would reset playback) unless something changed
+        const playing = [...document.querySelectorAll('video')].some((v) => !v.paused);
+        const key = JSON.stringify([d.status, d.step, d.progress, d.rendered, d.log?.length, d.tokens?.calls, d.error]);
+        if (!(playing && d.status === 'done') && key !== lastKey) { lastKey = key; renderDetail(d); }
+      }
+    }
+  } catch {}
+}
+setInterval(refresh, 1800); refresh();
+</script>
+</body>
+</html>

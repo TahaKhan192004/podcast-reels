@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./reels:*)",
+      "Bash(ffprobe:*)",
+      "Bash(ffmpeg:*)",
+      "Read(jobs/**)",
+      "Write(jobs/**)",
+      "Edit(jobs/**)"
+    ]
+  }
+}

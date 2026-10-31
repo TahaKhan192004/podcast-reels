@@ -1,0 +1,38 @@
+{
+  "clips": [
+    {
+      "title": "Why most startups die in year two",
+      "start": "00:41:12.3",
+      "end": "00:42:05.8",
+      "score": 9,
+      "reason": "Contrarian claim + concrete story + clear lesson at the end",
+      "hook": "Most startups die here",
+      "caption_preset": "hormozi",
+      "keywords": ["cash", "year", "runway"],
+      "moments": [
+        {"t": "00:41:15.0", "effect": "text", "text": "💸 CASH IS KING", "duration": 1.5},
+        {"t": "00:41:31.2", "effect": "punch"},
+        {"t": "00:41:48.9", "effect": "shake", "duration": 0.5}
+      ],
+      "post_caption": "Revenue is vanity, cash is sanity. The mistake that kills most startups 👇",
+      "hashtags": ["#startups", "#entrepreneur", "#podcast", "#business"]
+    },
+    {
+      "title": "The 5-year rule for every decision",
+      "start": "01:03:40.0",
+      "end": "01:04:22.5",
+      "score": 8,
+      "reason": "Simple, quotable framework that viewers will save and share",
+      "hook": "Use this before every decision",
+      "caption_preset": "karaoke",
+      "keywords": ["five", "years", "matter"],
+      "moments": [
+        {"t": "01:03:52.1", "effect": "flash"},
+        {"t": "01:04:01.7", "effect": "text", "text": "⏳ 5 YEARS?", "duration": 1.4},
+        {"t": "01:04:15.0", "effect": "zoom_out", "duration": 1.5}
+      ],
+      "post_caption": "Save this for the next time you're stuck on a decision.",
+      "hashtags": ["#mindset", "#decisionmaking", "#podcastclips"]
+    }
+  ]
+}

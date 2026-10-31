@@ -1,0 +1,13 @@
+.venv/
+remotion/node_modules/
+remotion/out/
+jobs/*
+!jobs/.gitkeep
+models/*.onnx
+assets/fonts/*.ttf
+assets/music/*
+!assets/music/.gitkeep
+__pycache__/
+*.pyc
+.DS_Store
+.dashboard/

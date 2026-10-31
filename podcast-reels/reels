@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Runs the pipeline with the project's virtualenv, from any directory.
+#   ./reels prepare "<youtube-url>"   ./reels produce   ./reels doctor   ./reels --help
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -x "$DIR/.venv/bin/python" ]; then
+  PY="$DIR/.venv/bin/python"
+elif [ -x "$DIR/.venv/Scripts/python.exe" ]; then   # Windows (Git Bash, which Claude Code uses)
+  PY="$DIR/.venv/Scripts/python.exe"
+else
+  echo "No .venv found. Run ./setup.sh (macOS/Linux) or .\\setup.ps1 (Windows) first." >&2
+  exit 1
+fi
+export PYTHONUTF8=1
+cd "$DIR" && exec "$PY" -m pipeline "$@"
