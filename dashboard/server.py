@@ -56,7 +56,7 @@ Per clip output:
 "moments":[{{"t":sec,"effect":E,"text":str,"duration":sec}}],"post_caption":str,"hashtags":[4-5]}}
 Wrap as {{"clips":[...]}}. Times are absolute seconds in the video.
 
-Moments (2-4 per clip, >=4 s apart, t inside the clip, timed to the exact spoken word):
+Moments (2-4 per clip, >=4 s apart, first one >=3 s after the clip start (the hook title owns the start), t inside the clip, timed to the exact spoken word):
  stat    text "32%|OF ALL HEALINGS" (number|label)  - for a concrete number/statistic, duration 2.2
  kinetic text up to 6 words, big slam-in headline    - for the single key line, at most 1 per clip, duration 2
  lower   text "TOPIC|short subtitle"                 - names a concept/person/study, at most 1 per clip, duration 2.5

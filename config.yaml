@@ -51,7 +51,8 @@ captions:
 render:
   engine: remotion          # remotion | ffmpeg   (ffmpeg = captions only, no motion graphics)
   fps: 30
-  concurrency: 0            # 0 = Remotion default (half your CPU threads)
+  concurrency: 2            # parallel Chrome tabs. 2 is safe everywhere; 8+ stalls on many laptops. 0 = Remotion default
+  timeout_seconds: 180      # how long Remotion waits for a single frame before giving up
   hook_title: true          # big hook text during the first ~2.5 s
   progress_bar: true
   auto_zoom: true           # slow push-in + punch zooms on emphasis moments

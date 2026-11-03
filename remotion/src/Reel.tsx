@@ -29,8 +29,8 @@ export const Reel: React.FC<ReelProps> = (p) => {
       {p.effects.vignette && <Vignette />}
       {p.effects.grain && <Grain />}
       <FlashLayer moments={p.moments} />
-      <MomentTexts moments={p.moments} style={p.captionStyle} font={font} />
-      <MotionGraphics moments={p.moments} style={p.captionStyle} font={font} />
+      <MomentTexts moments={p.moments} style={p.captionStyle} font={font} faceBand={p.faceBand} />
+      <MotionGraphics moments={p.moments} style={p.captionStyle} font={font} faceBand={p.faceBand} />
       <Captions pages={p.pages} preset={p.preset} style={p.captionStyle} font={font} />
       {p.hook && <HookTitle text={p.hook} style={p.captionStyle} font={font} />}
       {p.brandHandle && <BrandHandle handle={p.brandHandle} font={font} />}

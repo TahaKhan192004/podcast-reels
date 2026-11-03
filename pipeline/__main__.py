@@ -88,6 +88,10 @@ def cmd_doctor(_a):
     print("System")
     check("ffmpeg", shutil.which("ffmpeg"), "install ffmpeg (see README)")
     check("node", shutil.which("node"), "install Node.js 18+ (only needed for the Remotion engine)")
+    if shutil.which("deno"):
+        print("  ✓ deno (yt-dlp needs it for YouTube)")
+    else:  # warning only: downloads still work today, but YouTube is phasing this requirement in
+        print("  ! deno not found   → winget install DenoLand.Deno / brew install deno (YouTube downloads may fail without it)")
     print("Python packages")
     for mod in ("yt_dlp", "cv2", "numpy", "yaml"):
         check(mod, importlib.util.find_spec(mod), "pip install -r requirements.txt")

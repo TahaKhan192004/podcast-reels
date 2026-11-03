@@ -1,6 +1,7 @@
 import {AbsoluteFill, interpolate, random, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {getFont, heavyWeight} from '../fonts';
-import type {CaptionStyle, Moment} from '../types';
+import type {CaptionStyle, FaceBand, Moment} from '../types';
+import {placeTop} from './placement';
 
 // Motion-graphic moments chosen by Claude (effect + short text); all animation is deterministic code, so
 // rendering them costs no tokens.
@@ -14,7 +15,7 @@ const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const fade = (t: number, m: Moment) =>
   interpolate(t, [m.t + m.duration - 0.25, m.t + m.duration], [1, 0], clamp);
 
-const Stat: React.FC<{m: Moment; style: CaptionStyle}> = ({m, style}) => {
+const Stat: React.FC<{m: Moment; style: CaptionStyle; band?: FaceBand | null}> = ({m, style, band}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const t = frame / fps;
@@ -31,7 +32,7 @@ const Stat: React.FC<{m: Moment; style: CaptionStyle}> = ({m, style}) => {
     shown = `${match[1]}${v.toLocaleString('en-US', {minimumFractionDigits: decimals, maximumFractionDigits: decimals})}${match[3]}`;
   }
   return (
-    <AbsoluteFill style={{alignItems: 'center', justifyContent: 'flex-start', top: '19%'}}>
+    <AbsoluteFill style={{alignItems: 'center', justifyContent: 'flex-start', top: `${placeTop(band, 0.19, 0.18) * 100}%`}}>
       <div
         style={{
           opacity: out,
@@ -87,7 +88,7 @@ const Stat: React.FC<{m: Moment; style: CaptionStyle}> = ({m, style}) => {
   );
 };
 
-const Kinetic: React.FC<{m: Moment; style: CaptionStyle; font: string}> = ({m, style, font}) => {
+const Kinetic: React.FC<{m: Moment; style: CaptionStyle; font: string; band?: FaceBand | null}> = ({m, style, font, band}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const t = frame / fps;
@@ -96,7 +97,7 @@ const Kinetic: React.FC<{m: Moment; style: CaptionStyle; font: string}> = ({m, s
   const out = fade(t, m);
   const size = words.length <= 3 ? 150 : words.length <= 5 ? 118 : 96;
   return (
-    <AbsoluteFill style={{opacity: out, justifyContent: 'flex-start', alignItems: 'center', top: '22%'}}>
+    <AbsoluteFill style={{opacity: out, justifyContent: 'flex-start', alignItems: 'center', top: `${placeTop(band, 0.22, 0.16) * 100}%`}}>
       <div
         style={{
           position: 'absolute',
@@ -135,7 +136,7 @@ const Kinetic: React.FC<{m: Moment; style: CaptionStyle; font: string}> = ({m, s
   );
 };
 
-const Lower: React.FC<{m: Moment; style: CaptionStyle}> = ({m, style}) => {
+const Lower: React.FC<{m: Moment; style: CaptionStyle; band?: FaceBand | null}> = ({m, style, band}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const t = frame / fps;
@@ -144,7 +145,7 @@ const Lower: React.FC<{m: Moment; style: CaptionStyle}> = ({m, style}) => {
   const slide = spring({frame: f, fps, config: {damping: 15, stiffness: 120}});
   const exit = interpolate(t, [m.t + m.duration - 0.3, m.t + m.duration], [0, 1], clamp);
   return (
-    <AbsoluteFill style={{justifyContent: 'flex-start', top: '6.5%'}}>
+    <AbsoluteFill style={{justifyContent: 'flex-start', top: `${placeTop(band, 0.065, 0.08) * 100}%`}}>
       <div style={{transform: `translateX(${(1 - slide) * -700 - exit * 700}px)`, display: 'inline-flex', flexDirection: 'column'}}>
         <div
           style={{
@@ -183,7 +184,7 @@ const Lower: React.FC<{m: Moment; style: CaptionStyle}> = ({m, style}) => {
   );
 };
 
-const Burst: React.FC<{m: Moment}> = ({m}) => {
+const Burst: React.FC<{m: Moment; band?: FaceBand | null}> = ({m, band}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const t = frame / fps;
@@ -191,6 +192,7 @@ const Burst: React.FC<{m: Moment}> = ({m}) => {
   const pop = spring({frame: f, fps, config: {damping: 8, stiffness: 200}});
   const out = fade(t, m);
   const p = interpolate(f, [0, fps * 0.9], [0, 1], clamp);
+  const cy = (placeTop(band, 0.31, 0.14) + 0.07) * 100; // % from top, centre of the emoji
   return (
     <AbsoluteFill style={{opacity: out}}>
       {Array.from({length: 10}, (_, i) => {
@@ -202,7 +204,7 @@ const Burst: React.FC<{m: Moment}> = ({m}) => {
             style={{
               position: 'absolute',
               left: `calc(50% + ${Math.cos(a) * r}px)`,
-              top: `calc(38% + ${Math.sin(a) * r}px)`,
+              top: `calc(${cy}% + ${Math.sin(a) * r}px)`,
               fontSize: 70 + random(`bs${i}`) * 50,
               transform: `translate(-50%,-50%) rotate(${p * 90 * (i % 2 ? 1 : -1)}deg) scale(${1 - p * 0.4})`,
               opacity: 1 - p * 0.6,
@@ -212,14 +214,19 @@ const Burst: React.FC<{m: Moment}> = ({m}) => {
           </div>
         );
       })}
-      <div style={{position: 'absolute', left: '50%', top: '38%', fontSize: 260, transform: `translate(-50%,-50%) scale(${pop})`}}>
+      <div style={{position: 'absolute', left: '50%', top: `${cy}%`, fontSize: 260, transform: `translate(-50%,-50%) scale(${pop})`}}>
         {m.text}
       </div>
     </AbsoluteFill>
   );
 };
 
-export const MotionGraphics: React.FC<{moments: Moment[]; style: CaptionStyle; font: string}> = ({moments, style, font}) => {
+export const MotionGraphics: React.FC<{moments: Moment[]; style: CaptionStyle; font: string; faceBand?: FaceBand | null}> = ({
+  moments,
+  style,
+  font,
+  faceBand,
+}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const t = frame / fps;
@@ -227,10 +234,10 @@ export const MotionGraphics: React.FC<{moments: Moment[]; style: CaptionStyle; f
   return (
     <>
       {active.map((m, i) => {
-        if (m.effect === 'stat') return <Stat key={i} m={m} style={style} />;
-        if (m.effect === 'kinetic') return <Kinetic key={i} m={m} style={style} font={font} />;
-        if (m.effect === 'lower') return <Lower key={i} m={m} style={style} />;
-        if (m.effect === 'burst') return <Burst key={i} m={m} />;
+        if (m.effect === 'stat') return <Stat key={i} m={m} style={style} band={faceBand} />;
+        if (m.effect === 'kinetic') return <Kinetic key={i} m={m} style={style} font={font} band={faceBand} />;
+        if (m.effect === 'lower') return <Lower key={i} m={m} style={style} band={faceBand} />;
+        if (m.effect === 'burst') return <Burst key={i} m={m} band={faceBand} />;
         return null;
       })}
     </>

@@ -22,6 +22,13 @@ if ! command -v node >/dev/null; then
   else fail "Please install Node.js 18+ (https://nodejs.org)."; fi
 fi
 
+# yt-dlp now needs a JavaScript runtime (Deno) to solve YouTube's challenges. Not fatal if it can't be installed.
+if ! command -v deno >/dev/null; then
+  say "Installing Deno (needed by yt-dlp for YouTube) …"
+  if [ "$OS" = "Darwin" ] && command -v brew >/dev/null; then brew install deno || true
+  else printf "\033[33m! Please install Deno (https://docs.deno.com/runtime/getting_started/installation/); YouTube downloads may fail without it.\033[0m\n"; fi
+fi
+
 PY=""
 for c in python3.12 python3.11 python3.13 python3.10 python3; do
   if command -v "$c" >/dev/null && "$c" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)'; then PY="$c"; break; fi

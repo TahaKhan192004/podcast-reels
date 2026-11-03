@@ -92,7 +92,8 @@ class FaceDetector:
             gray = self.cv2.cvtColor(small, self.cv2.COLOR_BGR2GRAY)
             for (x, y, fw, fh) in self.haar.detectMultiScale(gray, 1.1, 5, minSize=(int(w * 0.04),) * 2):
                 boxes.append((int(x), int(y), int(fw), int(fh), 0.8))
-        faces = [{"cx": (x + fw / 2) / w, "w": fw / w, "conf": c, "box": (x, y, fw, fh)}
+        faces = [{"cx": (x + fw / 2) / w, "w": fw / w, "conf": c, "box": (x, y, fw, fh),
+                  "top": y / h, "bot": (y + fh) / h}
                  for x, y, fw, fh, c in boxes]
         return [f for f in faces if f["w"] > 0.03]  # ignore tiny background faces
 
@@ -183,10 +184,14 @@ def analyse_faces(src: Path, vi: dict, rc: dict) -> dict | None:
         n = f1 - f0
         centers[f0:f1] = np.linspace(c0, c1, n, endpoint=False) if n > 0 else c0
     centers[: sample_frames[0]] = cams[0]
+    # vertical band (0..1 of frame height) the main face occupies, so on-screen graphics can stay off it
+    mains = [max(s["faces"], key=lambda f: f["w"] * f["conf"]) for s in samples if s["faces"]]
+    face_band = [round(float(np.percentile([f["top"] for f in mains], 20)), 3),
+                 round(float(np.percentile([f["bot"] for f in mains], 80)), 3)]
     return {
         "centers": centers,
         "shots": len(bounds) - 1,
-        "debug": {"samples": [{"f": s["f"], "cut": s["cut"], "switch": i in snaps, "faces": len(s["faces"]),
+        "debug": {"face_band": face_band, "samples": [{"f": s["f"], "cut": s["cut"], "switch": i in snaps, "faces": len(s["faces"]),
                                "act": [round(f["act"], 2) for f in s["faces"]],
                                "target": round(t, 3), "cam": round(c, 3)}
                               for i, (s, t, c) in enumerate(zip(samples, targets, cams))]},

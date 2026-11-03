@@ -22,6 +22,7 @@ system Python. If something is missing, run `./reels doctor` and follow its hint
 | `./reels produce [job] --only 02,05 --rerender` | re-render only some clips (keeps cuts/reframes) |
 | `./reels produce [job] --preset boxed --engine ffmpeg --mode blur` | per-run overrides |
 | `./reels status [job]` · `./reels doctor` | progress · installation check |
+| `./reels dashboard` | local web UI: paste a link + reel count, it runs the whole pipeline (see README §3) |
 
 `[job]` is the folder name inside `jobs/`; omit it to use the most recent job.
 Transcription of a 1–2 h podcast can take a long time on CPU; run `prepare` with a generous Bash timeout
@@ -106,7 +107,14 @@ Field guide:
   - `flash`: white flash for a turn in the story or a "but then…"
   - `zoom_out`: starts tight and pulls back for a reveal
   - `glitch`: use rarely; for something absurd or "wait, what?"
+  - **Motion-graphic cards** (the premium look; use at least one per clip, and vary which ones across clips):
+    - `stat`: animated number card that counts up. `text` is `"NUMBER|LABEL"`, e.g. `"32%|OF ALL HEALINGS"`, `"$10M|IN YEAR ONE"`. Use whenever a concrete number or statistic is spoken. `duration` ≈ 2.2
+    - `kinetic`: big headline whose words slam in one by one (last word in an accent serif). `text` ≤ 6 words, e.g. `"SAME DAD OPPOSITE LIVES"`. The one key line of the clip, at most 1 per clip. `duration` ≈ 2
+    - `lower`: name tag / lower-third sliding in from the left. `text` is `"TITLE|subtitle"`, e.g. `"CRAIG FUGATE|Obama's FEMA director"` or `"SHAM SURGERY|Osteoarthritis study"`. Use when a person, study or concept is introduced, at most 1 per clip. `duration` ≈ 2.5
+    - `burst`: one emoji pops and radiates copies. `text` is a single emoji, e.g. `"🔥"`. For an emotional or funny beat, at most 1 per clip
   - optional `duration` in seconds (defaults to 1.2)
+  - Graphics with text are placed automatically away from the speaker's face (face tracking), so you don't need to position them.
+  - Keep the first moment ≥ 3 s after the clip starts: the hook title owns the first ~2.8 s.
 - **post_caption / hashtags**: written to `output/NN_title.txt` for posting.
 
 ## After writing clips.json
@@ -136,6 +144,7 @@ render: {brand_handle: "@mypodcast", end_card: "Follow for part 2 👀", music: 
 | change defaults | `config.yaml` |
 | add a caption preset | `remotion/src/captions/<Name>.tsx` + register in `captions/Captions.tsx`; add to `PRESETS` in `pipeline/clips.py`, `PRESET_LAYOUT` + an ASS style in `pipeline/captions.py`, the `Preset` type in `remotion/src/types.ts` and `--preset` choices in `pipeline/__main__.py` |
 | add a camera effect | `remotion/src/effects/Camera.tsx` (zoom/shake) or `Flash.tsx` (overlays); add the name to `EFFECTS` in `pipeline/clips.py` and `Effect` in `types.ts` |
+| add a motion-graphic card | `remotion/src/effects/MotionGraphics.tsx` (`stat`/`kinetic`/`lower`/`burst`); same registration as above, use `placeTop()` from `placement.ts` so it avoids the face, and describe it in the *moments* list in this file and in `RULES` in `dashboard/server.py` |
 | add an overlay (logo, subscribe button…) | new component in `remotion/src/effects/`, mount it in `remotion/src/Reel.tsx`, add a prop in `types.ts` + `build_props()` in `pipeline/render.py` |
 | change face tracking | `pipeline/reframe.py` (`_choose_targets` = who to frame, camera smoothing in `analyse_faces`) |
 | change Whisper behaviour | `pipeline/transcribe.py` |

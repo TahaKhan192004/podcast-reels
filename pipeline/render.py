@@ -14,8 +14,8 @@ import subprocess
 from pathlib import Path
 
 from .captions import build_pages, write_ass, zoom_beats
-from .common import (ASSETS_DIR, REMOTION_DIR, clip_dir, die, load_config, log, require_bin, run, warn,
-                     write_json)
+from .common import (ASSETS_DIR, REMOTION_DIR, clip_dir, die, load_config, log, read_json, require_bin, run,
+                     warn, write_json)
 
 
 def build_props(job: Path, spec: dict, cfg: dict, video_file: str, music_file: str | None) -> dict:
@@ -30,7 +30,13 @@ def build_props(job: Path, spec: dict, cfg: dict, video_file: str, music_file: s
                 if w["emph"] and w["s"] - last > 4:
                     moments.append({"t": w["s"], "effect": "punch", "text": "", "duration": 0.9})
                     last = w["s"]
+    face_band = None
+    try:  # written by reframe.py in face mode; absent for blur/center
+        face_band = read_json(clip_dir(job, spec["id"]) / "track.json").get("face_band")
+    except (OSError, ValueError):
+        pass
     return {
+        "faceBand": face_band,
         "videoFile": video_file,
         "durationSec": spec["duration"],
         "fps": rcfg["fps"],
@@ -113,6 +119,7 @@ def _render_remotion(job: Path, specs: list[dict], cfg: dict, out_dir: Path) -> 
 
     manifest = job / ".render_manifest.json"
     write_json(manifest, {"publicDir": str(public), "concurrency": cfg["render"]["concurrency"] or None,
+                          "timeoutMs": int(cfg["render"].get("timeout_seconds", 180)) * 1000,
                           "crf": cfg["encode"]["crf"], "x264Preset": cfg["encode"]["preset"],
                           "renders": renders})
     log(f"Rendering {len(renders)} reel(s) with Remotion …")

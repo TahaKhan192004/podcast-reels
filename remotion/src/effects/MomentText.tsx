@@ -1,9 +1,15 @@
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {heavyWeight} from '../fonts';
-import type {CaptionStyle, Moment} from '../types';
+import type {CaptionStyle, FaceBand, Moment} from '../types';
+import {placeTop} from './placement';
 
 // Big pop-up text/emoji callouts (any moment with `text`, typically effect 'text').
-export const MomentTexts: React.FC<{moments: Moment[]; style: CaptionStyle; font: string}> = ({moments, style, font}) => {
+export const MomentTexts: React.FC<{moments: Moment[]; style: CaptionStyle; font: string; faceBand?: FaceBand | null}> = ({
+  moments,
+  style,
+  font,
+  faceBand,
+}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const t = frame / fps;
@@ -21,7 +27,7 @@ export const MomentTexts: React.FC<{moments: Moment[]; style: CaptionStyle; font
           extrapolateRight: 'clamp',
         });
         return (
-          <AbsoluteFill key={i} style={{alignItems: 'center', top: '24%', justifyContent: 'flex-start'}}>
+          <AbsoluteFill key={i} style={{alignItems: 'center', top: `${placeTop(faceBand, 0.24, 0.12) * 100}%`, justifyContent: 'flex-start'}}>
             <div
               style={{
                 transform: `scale(${pop * (0.9 + 0.1 * out)}) rotate(${interpolate(pop, [0, 1], [-12, -3])}deg)`,

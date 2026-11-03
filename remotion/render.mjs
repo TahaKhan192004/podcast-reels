@@ -28,6 +28,7 @@ for (const r of manifest.renders) {
   n++;
   const composition = await selectComposition({
     serveUrl, id: 'Reel', inputProps: r.props, browserExecutable: process.env.REMOTION_BROWSER || null,
+    timeoutInMilliseconds: manifest.timeoutMs ?? 180000,
   });
   let last = -1;
   await renderMedia({
@@ -42,6 +43,7 @@ for (const r of manifest.renders) {
     outputLocation: r.out,
     inputProps: r.props,
     concurrency: manifest.concurrency ?? null,
+    timeoutInMilliseconds: manifest.timeoutMs ?? 180000, // default is 30 s, too short on slow Windows laptops
     browserExecutable: process.env.REMOTION_BROWSER || null, // optional: use an existing Chrome/Chromium
     onProgress: ({progress}) => {
       const pct = Math.floor(progress * 100);

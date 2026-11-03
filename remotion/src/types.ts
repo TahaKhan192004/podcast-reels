@@ -19,7 +19,10 @@ export type CaptionStyle = {
   uppercase: boolean;
 };
 
+export type FaceBand = [number, number]; // [top, bottom] of the main face, fractions of frame height
+
 export type ReelProps = {
+  faceBand?: FaceBand | null; // used to keep pop-up graphics off the speaker's face
   videoFile: string; // file inside the render public dir; '' = preview background
   durationSec: number;
   fps: number;

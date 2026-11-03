@@ -26,6 +26,10 @@ if (-not (Has node))   { Winget-Install "OpenJS.NodeJS.LTS" "Node.js" }
 # Only trust the 'py' launcher: a bare 'python' is often the Microsoft Store placeholder.
 if (-not (Has py))     { Winget-Install "Python.Python.3.12" "Python 3.12" }
 
+# yt-dlp now needs a JavaScript runtime (Deno) to solve YouTube's challenges. Not fatal if it fails.
+if (-not (Has deno))   { Winget-Install "DenoLand.Deno" "Deno (needed by yt-dlp for YouTube)" }
+if (-not (Has deno))   { Write-Host "! Deno not on PATH yet - YouTube downloads may fail until you reopen PowerShell." -ForegroundColor Yellow }
+
 foreach ($tool in "ffmpeg", "node", "py") {
   if (-not (Has $tool)) { Fail "'$tool' is installed but not on PATH yet. Close PowerShell, open a new one, and run setup again." }
 }
